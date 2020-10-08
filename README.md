@@ -31,3 +31,8 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 5. npm i vue-lazyload
 6. npm i vue-meta
 7. npm install workbox-webpack-plugin --save-dev
+8. npm install lodash-es
+9. npm install babel-plugin-component --save-dev
+10. npm install postcss-pxtorem --save-dev
+
+- ***postcss-pxtorem***（自动处理 rem）

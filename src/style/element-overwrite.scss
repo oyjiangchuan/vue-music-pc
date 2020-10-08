@@ -102,7 +102,7 @@ $input-height: 24px;
 
 // 外部覆写input-theme样式
 @mixin el-input-theme($color, $bg-color, $placeholder-color: $color) {
-  /deep/.el-input {
+  .el-input {
     @include el-input-style($color, $bg-color, $placeholder-color);
   }
 }
