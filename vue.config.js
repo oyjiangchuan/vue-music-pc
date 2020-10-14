@@ -2,14 +2,17 @@ const WorkboxPlugin = require('workbox-webpack-plugin')
 
 const isProd = process.env.NODE_ENV === 'production'
 
+// const path = require('path')
+
 module.exports = {
+  lintOnSave: false,
   configureWebpack: {
     devtool: isProd ? false : 'source-map',
     devServer: {
       open: true,
       proxy: {
         '/netease-api': {
-          target: 'http://localhost:3000',
+          target: 'http://musicapi.leanapp.cn', // 网易云公网API地址
           pathRewrite: { '^/netease-api': '' },
           changeOrigin: true,
           secure: false
@@ -27,6 +30,12 @@ module.exports = {
       new WorkboxPlugin.GenerateSW()
     ]
   },
+  // pluginOptions: { // 也可以使用style-resources-loader插件这种方式把scss定义的全局变量注入到全局中 还要配合使用vue-cli-plugin-style-resources-loader插件
+  //   'style-resources-loader': {
+  //     preProcessor: 'scss',
+  //     patterns: path.resolve(__dirname, 'src/style/scss/*.scss')
+  //   }
+  // },
   css: {
     loaderOptions: {
       sass: {
@@ -38,5 +47,4 @@ module.exports = {
       }
     }
   }
-  // lintOnSave: false
 }

@@ -1,6 +1,26 @@
 <template>
   <div class="header">
-    <div class="left"></div>
+    <div class="left">
+      <div class="buttons">
+        <div class="mac-button red" @click="goHomePage">
+          <Icon :size="9" type="s-home"/>
+        </div>
+        <div class="mac-button yellow" @click="exitFullscreen">
+          <Icon :size="9" type="minus"/>
+        </div>
+        <div class="mac-button green" @click="fullscreen">
+          <Icon :size="9" type="d-caret"/>
+        </div>
+      </div>
+      <!-- 缩起播放器 -->
+      <div class="shrink-player" v-if="isPlayerShow">
+        <Icon :backdrop="true" type="down"/>
+      </div>
+      <!-- 路由记录器 -->
+      <div class="history" v-show="!isPlayerShow">
+        <RoutesHistory />
+      </div>
+    </div>
     <div class="right">
       <div class="search-wrap">
         <!-- <Search /> -->
@@ -12,8 +32,25 @@
 
 <script>
 import Theme from '@/components/theme'
+import RoutesHistory from '@/components/routes-history'
 export default {
-  components: { Theme }
+  data () {
+    return {
+      isPlayerShow: false
+    }
+  },
+  methods: {
+    goHomePage () {
+      this.$router.push('/discovery')
+    },
+    exitFullscreen () {
+      console.log('点击恢复正常屏幕')
+    },
+    fullscreen () {
+      console.log('点击放大屏幕')
+    }
+  },
+  components: { Theme, RoutesHistory }
 }
 </script>
 
@@ -33,7 +70,7 @@ export default {
     var(--header-input-placeholder-color)
   );
 
-  .iconfont {
+  .iconfont { // 这里的样式没有生效 使用/deep/ 又出现了错误 待解决
     color: var(--header-font-color);
   }
 
