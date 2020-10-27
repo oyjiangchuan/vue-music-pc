@@ -3,12 +3,12 @@
     <Icon
       class="icon"
       :backdrop="true"
-      type="arrow-left"
+      type="back"
       @click="back"
     />
     <Icon
       :backdrop="true"
-      type="arrow-right"
+      type="forward"
       @click="forword"
     />
   </div>

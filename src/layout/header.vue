@@ -3,13 +3,13 @@
     <div class="left">
       <div class="buttons">
         <div class="mac-button red" @click="goHomePage">
-          <Icon :size="9" type="s-home"/>
+          <Icon :size="9" type="home"/>
         </div>
         <div class="mac-button yellow" @click="exitFullscreen">
           <Icon :size="9" type="minus"/>
         </div>
         <div class="mac-button green" @click="fullscreen">
-          <Icon :size="9" type="d-caret"/>
+          <Icon :size="9" type="fullscreen"/>
         </div>
       </div>
       <!-- 缩起播放器 -->
@@ -70,7 +70,10 @@ export default {
     var(--header-input-placeholder-color)
   );
 
-  .iconfont { // 这里的样式没有生效 使用/deep/ 又出现了错误 待解决
+  ::v-deep.iconfont {
+  // 这里的样式没有生效 使用/deep/ 又出现了错误。待解决
+  // ===> 已解决: 使用::v-deep代替/deep/
+  // 有些像 Sass 之类的预处理器无法正确解析 >>>。这种情况下你可以使用 /deep/ 或 ::v-deep 操作符取而代之——两者都是 >>> 的别名，同样可以正常工作(vue-loader官方文档：https://vue-loader.vuejs.org/zh/guide/scoped-css.html#%E5%AD%90%E7%BB%84%E4%BB%B6%E7%9A%84%E6%A0%B9%E5%85%83%E7%B4%A0)
     color: var(--header-font-color);
   }
 

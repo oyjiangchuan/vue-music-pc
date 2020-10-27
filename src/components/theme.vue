@@ -22,7 +22,7 @@
       <Icon
         :backdrop="true"
         slot="reference"
-        type="user"
+        type="skin"
       />
     </el-popover>
   </div>
@@ -80,6 +80,9 @@ export default {
       const theme = this.themeMap[themeKey].file
       Object.keys(theme).forEach(key => {
         const value = theme[key]
+        // 一键换肤功能核心代码, setProperty()方法用于设置一个新的CSS属性, 然后在CSS中就可以使用例如: var(--font-color)
+        // 这种方式访问, 是原生CSS3中就支持的用法。var() 函数用于插入自定义的属性值，如果一个属性值在多处被使用，该方法就很有用
+        // 这个和CSS预处理器less或者sass中定义的变量有些许区别
         document.documentElement.style.setProperty(key, value)
       })
     }

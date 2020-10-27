@@ -23,7 +23,7 @@ export default {
   },
   methods: {
     getIconCls () {
-      let cls = `el-icon-${this.type}`
+      let cls = `icon-${this.type}`
       if (this.color) {
         cls += `icon-color-${this.color}`
       }
