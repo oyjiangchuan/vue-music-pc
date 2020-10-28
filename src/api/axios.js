@@ -2,7 +2,7 @@ import axios from 'axios'
 // import { Loading } from 'element-ui'
 // import store from '@/store'
 
-const BASE_URL = 'http://localhost:3000'
+const BASE_URL = 'https://api.mtnhao.com/'
 
 // 不带全局loaing的请求实例
 export const requestWithoutLoading = createBaseInstance()

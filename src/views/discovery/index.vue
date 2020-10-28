@@ -1,14 +1,16 @@
 <template>
   <div class="discovery-wrapper">
-    发现音乐页面
+    <Banner />
+    <RecommendList />
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-
+import Banner from './banner'
+import RecommendList from './recommendList'
 export default {
   name: 'discovery',
-  components: {}
+  components: { Banner, RecommendList }
 }
 </script>
 
