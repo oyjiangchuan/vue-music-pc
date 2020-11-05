@@ -7,13 +7,13 @@
         v-for="mv in mvs"
         :key="mv.id"
       >
-        <!-- <MvCard
+        <MvCard
           :author="mv.artistName"
           :id="mv.id"
           :img="mv.picUrl"
           :name="mv.name"
           :playCount="mv.playCount"
-        /> -->
+        />
       </li>
     </ul>
   </div>
@@ -21,7 +21,7 @@
 
 <script type="text/ecmascript-6">
 import { getPersonalizedMv } from '@/api'
-// import MvCard from '@/components/mv-card'
+import MvCard from '@/components/mv-card'
 export default {
   created () {
     this.getMvs()
@@ -36,8 +36,8 @@ export default {
       const { result } = await getPersonalizedMv()
       this.mvs = result
     }
-  }
-  // components: { MvCard }
+  },
+  components: { MvCard }
 }
 </script>
 

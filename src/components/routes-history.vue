@@ -9,7 +9,7 @@
     <Icon
       :backdrop="true"
       type="forward"
-      @click="forword"
+      @click="forward"
     />
   </div>
 </template>
@@ -18,12 +18,10 @@
 export default {
   methods: {
     back () {
-      console.log('go pre router')
-      // this.$router.back()
+      this.$router.back()
     },
-    forword () {
-      console.log('go next router')
-      // this.$router.forword()
+    forward () {
+      this.$router.forward()
     }
   }
 }

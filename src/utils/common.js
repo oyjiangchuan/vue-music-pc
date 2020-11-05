@@ -16,3 +16,19 @@ export const pad = (num, n = 2) => {
   }
   return num
 }
+
+export const isDef = (v) => {
+  return v !== undefined && v !== null
+}
+
+export const formatNumber = (number) => {
+  number = Number(number) || 0
+  return number > 100000 ? `${Math.round(number / 10000)}万` : number
+}
+
+export const formatTime = (interval) => {
+  interval = interval || 0
+  const minute = pad((interval / 60) | 0)
+  const second = pad(interval % 60)
+  return `${minute}:${second}`
+}
