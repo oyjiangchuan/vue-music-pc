@@ -23,7 +23,7 @@
     </div>
     <div class="right">
       <div class="search-wrap">
-        <!-- <Search /> -->
+        <Search />
       </div>
       <Theme />
     </div>
@@ -33,6 +33,7 @@
 <script>
 import Theme from '@/components/theme'
 import RoutesHistory from '@/components/routes-history'
+import Search from '@/components/search'
 export default {
   data () {
     return {
@@ -50,7 +51,7 @@ export default {
       console.log('点击放大屏幕')
     }
   },
-  components: { Theme, RoutesHistory }
+  components: { Theme, RoutesHistory, Search }
 }
 </script>
 
