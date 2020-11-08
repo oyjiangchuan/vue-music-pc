@@ -1,7 +1,7 @@
 <template>
   <div class="search">
     <el-input
-      @click.native="onClickInput"
+      @click.native="() => { searchPanelShow = true }"
       @input="onInput"
       @keypress.native.enter="onEnterPress"
       placeholder="搜索"
@@ -13,8 +13,23 @@
         :reserveDoms="[$refs.input && $refs.input.$el]"
         :show.sync="searchPanelShow"
       >
-        <div class="search-panel" v-show="!searchPanelShow">
-          <div class="search-hots">
+        <div class="search-panel" v-show="searchPanelShow">
+          <div class="search-suggest" v-if="suggestShow">
+            <div class="suggest-item" v-for="(normalizedSuggest, index) in normalizedSuggests" :key="index">
+              <div class="title">
+                <Icon :size="12" :type="normalizedSuggest.icon" />
+                {{normalizedSuggest.title}}
+              </div>
+              <ul class="list">
+                <li class="item" v-for="item in normalizedSuggest.data" :key="item.id">
+                  <HighlightText
+                    :highlightText="searchKeyword"
+                    :text="normalizedSuggest.renderName ? normalizedSuggest.renderName(item) : item.name" />
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="search-hots" v-else>
             <div class="block">
               <p class="title">热门搜索</p>
               <div class="tags">
@@ -23,10 +38,22 @@
                   :key="index"
                   v-for="(hot, index) in searchHots"
                   @click="onClickHot(hot)"
-                >{{hot}}</NButton>
+                >{{hot.first}}</NButton>
               </div>
             </div>
             <div class="block">
+              <p class="title">搜索历史</p>
+              <div class="tags" v-if="searchHistorys.length">
+                <NButton
+                  class="button"
+                  :key="index"
+                  v-for="(history, index) in searchHistorys"
+                  @click="onClickHot(history)"
+                >{{history.first}}</NButton>
+              </div>
+              <div class="empty" v-else>
+                暂无搜索历史
+              </div>
             </div>
           </div>
         </div>
@@ -35,29 +62,89 @@
 </template>
 
 <script>
-// import storage from 'good-storage'
+import storage from 'good-storage'
+import { getSearchHot, getSearchSuggest } from '@/api'
+import { genArtistisText, debounce } from '@/utils'
+const SEARCH_HISTORY_KEY = '__search_history__'
 export default {
   data () {
     return {
       searchKeyword: '',
-      searchPanelShow: '',
-      searchHots: [
-        '搜索历史',
-        '搜索历史',
-        '搜索历史',
-        '搜索历史',
-        '搜索历史',
-        '搜索历史',
-        '搜索历史'
-      ]
+      searchPanelShow: false,
+      searchHots: [],
+      searchHistorys: storage.get(SEARCH_HISTORY_KEY, []),
+      suggest: {}
     }
   },
+  async created () {
+    const { result: { hots } } = await getSearchHot()
+    this.searchHots = hots
+  },
   methods: {
-    onClickInput () {},
-    onInput () {},
-    onEnterPress () {},
+    // value的就是searchKeyword的值,输入框使用防抖函数
+    onInput: debounce(function (value) {
+      if (!value.trim()) {
+        return
+      }
+      getSearchSuggest(value).then(({ result }) => {
+        this.suggest = result
+      })
+    }, 500),
+    // 搜索框按下回车
+    onEnterPress () {
+      if (this.searchKeyword) {
+        this.goSearch(this.searchKeyword)
+      }
+    },
+    // 点击热门搜索标签
     onClickHot (hot) {
-      console.log('hot', hot)
+      const { first } = hot
+      this.goSearch(first)
+    },
+    goSearch (keywords) {
+      this.searchHistorys.push({ first: keywords })
+      storage.set(SEARCH_HISTORY_KEY, this.searchHistorys)
+      this.$router.push(`/search/${keywords}`)
+      this.searchPanelShow = false
+    },
+    // 点击搜索单曲列表item
+    onClickSong () {},
+    // 点击搜索歌单列表item
+    onClickPlaylist () {},
+    // 点击搜索mv列表item
+    onClickMv () {}
+  },
+  computed: {
+    suggestShow () {
+      return (this.searchKeyword.length && ['songs', 'playlists'].find(key => { return (this.suggest[key] && this.suggest[key].length) }))
+    },
+    normalizedSuggests () {
+      return [
+        {
+          title: '单曲',
+          icon: 'music',
+          data: this.suggest.songs,
+          renderName (song) {
+            return `${song.name} - ${genArtistisText(song.artists)}`
+          },
+          onClick: this.onClickSong.bind(this)
+        },
+        {
+          title: '歌单',
+          icon: 'playlist',
+          data: this.suggest.playlists,
+          onClick: this.onClickPlaylist.bind(this)
+        },
+        {
+          title: 'mv',
+          icon: 'mv',
+          data: this.suggest.mvs,
+          renderName (mv) {
+            return `${mv.name} - ${genArtistisText(mv.artists)}`
+          },
+          onClick: this.onClickMv.bind(this)
+        }
+      ].filter(item => item.data && item.data.length)
     }
   }
 }
@@ -96,6 +183,34 @@ export default {
           margin-bottom: 12px;
           margin-right: 6px;
           font-size: $font-size-sm;
+        }
+      }
+
+      .empty {
+        @include flex-center();
+        color: var(--font-color-grey);
+        font-size: $font-size;
+        height: 100px;
+      }
+    }
+
+    .suggest-item {
+      margin-bottom: 16px;
+
+      .title {
+        margin: 16px 8px 8px;
+        color: var(--font-color-grey-shallow);
+      }
+
+      .list {
+        .item {
+          padding: 12px 24px;
+          cursor: pointer;
+          @include text-ellipsis();
+
+          &:hover {
+            background: var(--light-bgcolor);
+          }
         }
       }
     }
