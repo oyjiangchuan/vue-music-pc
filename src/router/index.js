@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import Discovery from '../views/discovery'
 import Mvs from '../views/mvs'
 import Playlists from '../views/playlists'
+import PlaylistDetail from '../views/playlists/detail'
 import Songs from '../views/songs'
 
 // 内容需要居中的页面
@@ -26,7 +27,14 @@ export const menuRoutes = [
     meta: {
       title: '推荐歌单',
       icon: 'playlist-menu'
-    }
+    },
+    children: [
+      {
+        path: '/playlists/detail/:id',
+        name: 'playlistDetail',
+        component: PlaylistDetail
+      }
+    ]
   },
   {
     path: '/songs',

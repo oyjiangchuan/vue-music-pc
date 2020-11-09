@@ -16,7 +16,7 @@ export default {
   props: ['id', 'img', 'name', 'desc'],
   methods: {
     onClickCard () {
-      this.$router.push(`/playlist/${this.id}`)
+      this.$router.push(`/playlists/detail/${this.id}`)
     }
   }
 }

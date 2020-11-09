@@ -32,3 +32,7 @@ export const formatTime = (interval) => {
   const second = pad(interval % 60)
   return `${minute}:${second}`
 }
+
+export const getPageOffset = (page, limit) => {
+  return (page - 1) * limit
+}
