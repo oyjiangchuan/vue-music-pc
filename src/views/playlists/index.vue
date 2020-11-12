@@ -10,13 +10,13 @@
         />
       </div>
       <div class="tabs">
-        <!-- <Tabs
+        <Tabs
          :tabs="tabs"
+         v-model="activeTabIndex"
          @tabChange="onTabChange"
          align="right"
          type="small"
-         v-model="activeTabIndex"
-        /> -->
+        />
       </div>
       <div class="playlist-cards">
         <PlaylistCard
@@ -91,6 +91,9 @@ export default {
         cat: this.tabs[this.activeTabIndex]
       })
       this.topPlaylist = playlists[0] || {}
+    },
+    onTabChange () {
+      this.initData()
     }
   },
   components: { PlaylistCard, TopPlaylistCard }
