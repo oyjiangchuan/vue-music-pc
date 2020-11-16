@@ -1,3 +1,4 @@
+<!-- 推荐歌单 -->
 <template>
   <div class="playlists-root">
     <div class="playlists-wrapper" ref="playlists" v-if="this.$route.path === '/playlists'">
@@ -28,6 +29,13 @@
           v-for="item in playlists"
         />
       </div>
+      <Pagination
+        class="pagination"
+        :current-page.sync="currentPage"
+        :page-size="PAGE_SIZE"
+        :total="total"
+        @current-change="onPageChange"
+      ></Pagination>
     </div>
     <router-view v-else></router-view>
   </div>
@@ -35,7 +43,7 @@
 
 <script type="text/ecmascript-6">
 import { getPlaylists, getTopPlaylists } from '@/api'
-import { getPageOffset } from '@/utils'
+import { getPageOffset, scrollInto } from '@/utils'
 import PlaylistCard from '@/components/playlist-card'
 import TopPlaylistCard from '@/components/top-playlist-card'
 const PAGE_SIZE = 50
@@ -92,6 +100,12 @@ export default {
       })
       this.topPlaylist = playlists[0] || {}
     },
+    // 分页只重新获取歌单列表
+    async onPageChange (page) {
+      this.currentPage = page
+      this.getPlaylists()
+      scrollInto(this.$refs.playlists)
+    },
     onTabChange () {
       this.initData()
     }
@@ -111,6 +125,12 @@ export default {
   .playlist-cards {
     display: flex;
     flex-wrap: wrap;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 36px;
   }
 }
 </style>

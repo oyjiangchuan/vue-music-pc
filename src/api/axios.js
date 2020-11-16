@@ -1,6 +1,6 @@
 import axios from 'axios'
-// import { Loading } from 'element-ui'
-// import store from '@/store'
+import { Loading } from 'element-ui'
+import store from '@/store'
 
 const BASE_URL = 'https://api.mtnhao.com/'
 
@@ -11,7 +11,7 @@ export const requestWithoutLoading = createBaseInstance()
 // 所有要在内部插入loading拦截器的处理逻辑
 export const request = createBaseInstance()
 
-// mixinLoading(request.interceptors)
+mixinLoading(request.interceptors)
 
 // 通用的axios实例
 function createBaseInstance () {
@@ -32,47 +32,47 @@ function handleResponse (response) {
   return response.data
 }
 
-// let loading
-// let loadingCount = 0
-// const SET_AXIOS_LOADING = 'global/setAxiosLoading'
+let loading
+let loadingCount = 0
+const SET_AXIOS_LOADING = 'global/setAxiosLoading'
 
-// function mixinLoading (interceptors) {
-//   interceptors.request.use(loadingRequestInterceptor)
-//   interceptors.response.use(
-//     loadingResponseInterceptor,
-//     loadingResponseErrorInterceptor
-//   )
+function mixinLoading (interceptors) {
+  interceptors.request.use(loadingRequestInterceptor)
+  interceptors.response.use(
+    loadingResponseInterceptor,
+    loadingResponseErrorInterceptor
+  )
 
-//   function loadingRequestInterceptor (config) {
-//     if (!loading) {
-//       loading = Loading.service({
-//         target: 'body',
-//         background: 'transparent',
-//         text: '载入中'
-//       })
-//       store.commit(SET_AXIOS_LOADING, true)
-//     }
-//     loadingCount++
+  function loadingRequestInterceptor (config) {
+    if (!loading) {
+      loading = Loading.service({
+        target: 'body',
+        background: 'transparent',
+        text: '载入中'
+      })
+      store.commit(SET_AXIOS_LOADING, true)
+    }
+    loadingCount++
 
-//     return config
-//   }
+    return config
+  }
 
-//   function handleResponseLoading () {
-//     loadingCount--
-//     if (loadingCount === 0) {
-//       loading.close()
-//       loading = null
-//       store.commit(SET_AXIOS_LOADING, false)
-//     }
-//   }
+  function handleResponseLoading () {
+    loadingCount--
+    if (loadingCount === 0) {
+      loading.close()
+      loading = null
+      store.commit(SET_AXIOS_LOADING, false)
+    }
+  }
 
-//   function loadingResponseInterceptor (response) {
-//     handleResponseLoading()
-//     return response
-//   }
+  function loadingResponseInterceptor (response) {
+    handleResponseLoading()
+    return response
+  }
 
-//   function loadingResponseErrorInterceptor (e) {
-//     handleResponseLoading()
-//     throw e
-//   }
-// }
+  function loadingResponseErrorInterceptor (e) {
+    handleResponseLoading()
+    throw e
+  }
+}

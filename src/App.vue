@@ -7,6 +7,11 @@
 <script>
 import Layout from '@/layout'
 export default {
+  metaInfo () {
+    return {
+      title: '欢迎来到sshPlayer'
+    }
+  },
   components: { Layout }
 }
 

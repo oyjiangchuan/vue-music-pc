@@ -24,6 +24,7 @@ export default {
 <style lang="scss" scoped>
 .n-button {
   padding: 5px 16px;
+  display: inline-block;
   border: 1px solid var(--button-border-color);
   border-radius: 2px;
   text-align: center;

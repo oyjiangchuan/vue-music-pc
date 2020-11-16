@@ -1,3 +1,4 @@
+<!-- 发现音乐 -->
 <template>
   <div class="discovery-wrapper">
     <Banner />
