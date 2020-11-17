@@ -2,13 +2,42 @@
 <template>
   <div class="playlist-detail" v-if="playlist.id">
     <DetailHeader :playlist="playlist" ref="header"></DetailHeader>
+    <div class="tabs-wrap">
+      <Tabs :tabs="tabs" type="theme" v-model="activeTab" />
+      <el-input
+        :class="getInputCls()"
+        class="input"
+        @blur="onInputBlur"
+        @focus="onInputFocus"
+        placeholder="搜索歌单音乐"
+        prefix-icon="el-icon-search"
+        v-model="searchValue"
+        v-show="activeTab === SONG_IDX"
+      />
+    </div>
+    <div class="empty" v-if="searchValue && !filteredSongs.length">
+      未找到和
+      <span class="keyword">{{ searchValue }}</span>
+      相关的任何音乐
+    </div>
+    <!-- <SongTable
+      :highlightText="searchValue"
+      :songs="filteredSongs"
+      class="table"
+      v-show="activeTab === SONG_IDX"
+    /> -->
   </div>
 </template>
 
 <script type="text/ecmascript-6">
 import DetailHeader from './header'
-import { getListDetail } from '@/api'
-import { scrollInto } from '@/utils'
+import SongTable from '@/components/song-table'
+import { getListDetail, getSongDetail } from '@/api'
+import { scrollInto, createSong } from '@/utils'
+
+const MAX = 500
+const SONG_IDX = 0
+// const COMMENT_IDX = 1
 export default {
   name: 'playlistDetail',
   metaInfo () { // metaInfo用法
@@ -18,8 +47,13 @@ export default {
   },
   data () {
     return {
+      SONG_IDX,
+      tabs: ['歌曲列表', '评论'],
+      activeTab: SONG_IDX,
       playlist: {},
-      searchValue: ''
+      songs: [],
+      searchValue: '',
+      inputFocus: false
     }
   },
   async created () {
@@ -29,35 +63,101 @@ export default {
     async init () {
       const { playlist } = await getListDetail({ id: this.id })
       this.playlist = playlist
+      this.getSonglist(playlist)
     },
+    async getSonglist (playlist) {
+      const trackIds = playlist.trackIds.map(({ id }) => id)
+      const songDetails = await getSongDetail(trackIds.slice(0, MAX))
+      const songs = songDetails.songs.map(({ id, name, al, ar, mv, dt }) =>
+        createSong({
+          id,
+          name,
+          artists: ar,
+          duration: dt,
+          mvId: mv,
+          albumName: al.name,
+          img: al.picUrl
+        })
+      )
+      this.songs = songs
+    },
+    // 置顶
     scrollToHeader () {
       const { header } = this.$refs
       if (header) {
         scrollInto(header.$el)
       }
+    },
+    // 添加类名
+    getInputCls () {
+      return !this.inputFocus ? 'inactive' : ''
+    },
+    // 失焦事件
+    onInputBlur () {
+      this.inputFocus = false
+    },
+    // 聚焦事件
+    onInputFocus () {
+      this.inputFocus = true
     }
   },
   computed: {
     id () {
       return Number(this.$route.params.id)
+    },
+    filteredSongs () {
+      return this.songs.filter(({ name, artistsText, albumName }) =>
+        `${name}${artistsText}${albumName}`
+          .toLowerCase()
+          .includes(this.searchValue.toLowerCase())
+      )
     }
   },
   watch: {
     id: {
       handler () {
-        // this.searchValue = ""
+        this.searchValue = ''
         this.init()
         this.scrollToHeader()
       },
       immediate: true
     }
   },
-  components: { DetailHeader }
+  components: { DetailHeader, SongTable }
 }
 </script>
 
 <style lang="scss" scoped>
 .playlist-detail {
   width: 100%;
+
+  .tabs-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 24px;
+    border-bottom: 1px solid var(--border);
+
+    .input {
+      width: 125px;
+
+      &:not(:hover) {
+        &.inactive {
+          ::v-deep.el-input__inner {
+            background-color: transparent !important;;
+          }
+        }
+      }
+    }
+  }
+
+  .empty {
+    @include flex-center;
+    height: 200px;
+
+    .keyword {
+      color: $blue;
+    }
+  }
 }
 </style>

@@ -8,3 +8,5 @@ export const getTopPlaylists = (params) => request.get('/top/playlist/highqualit
 export const getSimiPlaylists = (id, option) => requestWithoutLoading.get(`/simi/playlist?id=${id}`, option)
 // 获取歌单详情页数据
 export const getListDetail = (params) => request.get('/playlist/detail', { params })
+// 获取音乐详情
+export const getSongDetail = (ids) => request.get(`/song/detail?ids=${ids}`)
