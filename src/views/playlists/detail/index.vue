@@ -20,24 +20,28 @@
       <span class="keyword">{{ searchValue }}</span>
       相关的任何音乐
     </div>
-    <!-- <SongTable
+    <SongTable
       :highlightText="searchValue"
       :songs="filteredSongs"
       class="table"
       v-show="activeTab === SONG_IDX"
-    /> -->
+    />
+    <div class="comments" v-show="activeTab === COMMENT_IDX">
+      <Comments :id="id" @update="onCommentsUpdate" type="playlist" />
+    </div>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
 import DetailHeader from './header'
 import SongTable from '@/components/song-table'
+import Comments from '@/components/comments'
 import { getListDetail, getSongDetail } from '@/api'
 import { scrollInto, createSong } from '@/utils'
 
 const MAX = 500
 const SONG_IDX = 0
-// const COMMENT_IDX = 1
+const COMMENT_IDX = 1
 export default {
   name: 'playlistDetail',
   metaInfo () { // metaInfo用法
@@ -48,6 +52,7 @@ export default {
   data () {
     return {
       SONG_IDX,
+      COMMENT_IDX,
       tabs: ['歌曲列表', '评论'],
       activeTab: SONG_IDX,
       playlist: {},
@@ -80,6 +85,10 @@ export default {
         })
       )
       this.songs = songs
+    },
+    // 修改tabs
+    onCommentsUpdate ({ total }) {
+      this.tabs.splice(COMMENT_IDX, 1, `评论(${total})`)
     },
     // 置顶
     scrollToHeader () {
@@ -123,7 +132,7 @@ export default {
       immediate: true
     }
   },
-  components: { DetailHeader, SongTable }
+  components: { DetailHeader, SongTable, Comments }
 }
 </script>
 
@@ -158,6 +167,10 @@ export default {
     .keyword {
       color: $blue;
     }
+  }
+
+  .comments {
+    padding: 16px 32px;
   }
 }
 </style>

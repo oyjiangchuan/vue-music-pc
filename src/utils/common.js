@@ -71,3 +71,21 @@ export const formatDate = (date, fmt = 'yyyy-MM-dd hh:mm:ss') => {
 function padLeftZero (str) {
   return ('00' + str).substr(str.length)
 }
+
+export const shallowEqual = (a, b, compareKey) => {
+  if (a.length !== b.length) {
+    return false
+  }
+  for (let i = 0; i < a.length; i++) {
+    let compareA = a[i]
+    let compareB = b[i]
+    if (compareKey) {
+      compareA = compareA[compareKey]
+      compareB = compareB[compareKey]
+    }
+    if (!Object.is(a[i], b[i])) {
+      return false
+    }
+  }
+  return true
+}

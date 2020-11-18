@@ -134,7 +134,6 @@ export default {
     }
   },
   computed: {
-    ...mapState(['currentSong']),
     showColumns () {
       const hideColumns = this.hideColumns.slice()
       const reference = this.songs[0]
@@ -145,11 +144,12 @@ export default {
       return this.columns.filter(column => {
         return !hideColumns.find(hideColumn => hideColumn === column.prop)
       })
-    }
+    },
+    ...mapState('music', ['currentSong'])
   },
   methods: {
-    ...mapMutations(['setPlaylist']),
-    ...mapActions(['startSong']),
+    ...mapMutations('music', ['setPlaylist']),
+    ...mapActions('music', ['startSong']),
     onRowClick (song) {
       this.startSong(song)
       this.setPlaylist(this.songs)
