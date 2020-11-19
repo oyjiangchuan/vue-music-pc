@@ -12,7 +12,8 @@ module.exports = {
       open: true,
       proxy: {
         '/netease-api': {
-          target: 'http://musicapi.leanapp.cn', // 网易云公网API地址
+          // target: 'http://musicapi.leanapp.cn', // 网易云公网API地址
+          target: 'https://api.mtnhao.com/', // 网易云公网API地址
           pathRewrite: { '^/netease-api': '' },
           changeOrigin: true,
           secure: false
