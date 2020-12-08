@@ -1,3 +1,5 @@
+import { Notification } from 'element-ui'
+
 export { throttle, debounce } from 'lodash-es'
 // 拼接imgurl请求地址
 export const genImgUrl = (url, w, h) => {
@@ -89,3 +91,17 @@ export const shallowEqual = (a, b, compareKey) => {
   }
   return true
 }
+
+export const notify = (message, type) => {
+  const params = {
+    message,
+    duration: 1500
+  }
+  const fn = type ? Notification[type] : Notification
+  return fn(params)
+}
+['success', 'warning', 'info', 'error'].forEach(key => {
+  notify[key] = (message) => {
+    return notify(message, key)
+  }
+})

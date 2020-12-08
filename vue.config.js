@@ -1,4 +1,4 @@
-const WorkboxPlugin = require('workbox-webpack-plugin')
+// const WorkboxPlugin = require('workbox-webpack-plugin')
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -26,10 +26,10 @@ module.exports = {
       'vue-router': 'VueRouter',
       vuex: 'Vuex',
       axios: 'axios'
-    } : {},
-    plugins: [
-      new WorkboxPlugin.GenerateSW()
-    ]
+    } : {}
+    // plugins: [
+    //   new WorkboxPlugin.GenerateSW()
+    // ]
   },
   // pluginOptions: { // 也可以使用style-resources-loader插件这种方式把scss定义的全局变量注入到全局中 还要配合使用vue-cli-plugin-style-resources-loader插件
   //   'style-resources-loader': {

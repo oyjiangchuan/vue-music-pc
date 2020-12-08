@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { Loading } from 'element-ui'
+import { confirm } from '@/base/confirm'
 import store from '@/store'
 
 // const BASE_URL = process.env.NODE_ENV === 'development' ? 'https://api.mtnhao.com/' : ''

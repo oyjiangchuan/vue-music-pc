@@ -1,5 +1,6 @@
 <template>
   <div class="menu">
+    <user />
     <div class="menu-wrapper">
       <div class="menu-block"
         v-for="(menu, index) in menusWithPlaylist"
@@ -26,6 +27,12 @@
 
 <script type="text/ecmascript-6">
 import { menuRoutes } from '@/router'
+import User from '@/components/user'
+import {
+  mapState as mapUserState,
+  mapGetters as mapUserGetters
+} from '@/store/helper/user'
+
 export default {
   name: 'Menu', // 不能使用menu做name属性 可能是vue或者HTML已经使用过的内置的属性名
   data () {
@@ -44,8 +51,11 @@ export default {
       return this.isLogin && this.userMenus.length
         ? this.menus.concat(this.userMenus)
         : this.menus
-    }
-  }
+    },
+    ...mapUserState(['userPlaylist']),
+    ...mapUserGetters(['isLogin', 'userMenus'])
+  },
+  components: { User }
 }
 </script>
 
