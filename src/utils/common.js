@@ -91,7 +91,7 @@ export const shallowEqual = (a, b, compareKey) => {
   }
   return true
 }
-
+// 提醒框封装
 export const notify = (message, type) => {
   const params = {
     message,
@@ -105,3 +105,7 @@ export const notify = (message, type) => {
     return notify(message, key)
   }
 })
+// 判断是不是最后一条数据
+export const isLast = (index, arr) => {
+  return index === arr.length - 1
+}
