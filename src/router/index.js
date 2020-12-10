@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Discovery from '../views/discovery'
 import Mvs from '../views/mvs'
+import Mv from '../views/mvs/detail'
 import Playlists from '../views/playlists'
 import PlaylistDetail from '../views/playlists/detail'
 import Songs from '../views/songs'
@@ -52,7 +53,15 @@ export const menuRoutes = [
     meta: {
       title: '最新MV',
       icon: 'mv'
-    }
+    },
+    children: [
+      {
+        path: '/mv/:id',
+        name: 'mv',
+        component: Mv,
+        props: (route) => ({ id: +route.params.id })
+      }
+    ]
   }
 ]
 

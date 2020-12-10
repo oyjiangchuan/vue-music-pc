@@ -16,6 +16,7 @@
 import LayoutHeader from './header'
 import LayoutMenu from './menu'
 import { layoutCenterNames } from '@/router'
+// import { mapState } from '@/store/helper/music'
 export default {
   data () {
     return {
@@ -28,6 +29,7 @@ export default {
         ? 'router-view-center'
         : ''
     }
+    // ...mapState(['isMenuShow'])
   },
   components: { LayoutHeader, LayoutMenu }
 }

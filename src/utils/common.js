@@ -29,7 +29,7 @@ export const formatNumber = (number) => {
 }
 // 转化分秒
 export const formatTime = (interval) => {
-  interval = interval || 0
+  interval = interval | 0
   const minute = pad((interval / 60) | 0)
   const second = pad(interval % 60)
   return `${minute}:${second}`
