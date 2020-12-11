@@ -1,5 +1,5 @@
 <template>
-  <div class="pagination">
+  <div class="pagination" v-if="total > pageSize">
     <el-pagination
       :pageSize="pageSize"
       :total="total"

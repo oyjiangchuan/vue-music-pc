@@ -16,20 +16,15 @@
 import LayoutHeader from './header'
 import LayoutMenu from './menu'
 import { layoutCenterNames } from '@/router'
-// import { mapState } from '@/store/helper/music'
+import { mapState } from '@/store/helper/music'
 export default {
-  data () {
-    return {
-      isMenuShow: true
-    }
-  },
   computed: {
     routerViewCls () {
       return layoutCenterNames.find(name => name === this.$route.name)
         ? 'router-view-center'
         : ''
-    }
-    // ...mapState(['isMenuShow'])
+    },
+    ...mapState(['isMenuShow'])
   },
   components: { LayoutHeader, LayoutMenu }
 }
