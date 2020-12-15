@@ -8,25 +8,43 @@
         </div>
         <div class="author-wrap">
           <div class="avatar">
-            <img v-lazy="$utils.genImgUrl('https://p1.music.126.net/7MTwPV7_M-98rjDUNgdgdw==/109951163941046110.jpg', 120)" />
+            <img v-lazy="$utils.genImgUrl(artist.picUrl, 120)" />
           </div>
-          <p class="author">PRODUCE X 101</p>
+          <p class="author">{{ artist.name }}</p>
         </div>
-        <p class="name">金玄彬(Source Music) 吃零食挑战</p>
-        <!-- <div class="desc">
+        <p class="name">{{ mvDetail.name }}</p>
+        <div class="desc">
           <span class="date"
             >发布：{{
               $utils.formatDate(mvDetail.publishTime, "yyyy-MM-dd")
             }}</span
           >
           <span class="count">播放：{{ mvDetail.playCount }}次</span>
-        </div> -->
+        </div>
         <div class="comments">
           <Comments :id="id" type="mv" />
         </div>
       </div>
       <div class="right">
         <p class="title">相关推荐</p>
+        <div class="simi-mvs">
+          <Card
+            class="simi-mv-card"
+            :desc="`by ${simiMv.artistName}`"
+            v-for="simiMv in simiMvs"
+            :key="simiMv.id"
+            :name="simiMv.name"
+            @click.native="goMv(simiMv.id)"
+          >
+            <template #img-wrap>
+              <MvCard
+                :duration="simiMv.duration"
+                :img="simiMv.cover"
+                :playCount="simiMv.playCount"
+              />
+            </template>
+          </Card>
+        </div>
       </div>
     </div>
   </div>
@@ -36,6 +54,7 @@
 import { getMvDetail, getMvUrl, getArtists, getSimiMv } from '@/api'
 import { hideMenuMixin } from '@/utils'
 import Comments from '@/components/comments'
+import MvCard from '@/components/mv-card'
 import { mapMutations } from '@/store/helper/music'
 
 export default {
@@ -62,7 +81,7 @@ export default {
       const [
         { data: mvDetail },
         { data: mvPlayInfo },
-        { data: simiMvs }
+        { mvs: simiMvs }
       ] = await Promise.all([
         getMvDetail(this.id),
         getMvUrl(this.id),
@@ -86,12 +105,18 @@ export default {
         })
       })
     },
+    goMv (id) {
+      // 如果传入id 则点击直接跳转mv页面
+      if (this.$utils.isDef(id)) {
+        this.$router.push(`/mv/${id}`)
+      }
+    },
     ...mapMutations(['setPlayingState'])
   },
   watch: {
     id: 'init'
   },
-  components: { Comments }
+  components: { Comments, MvCard }
 }
 
 function genResource (brs, mvPlayInfo) {
@@ -184,6 +209,15 @@ function genResource (brs, mvPlayInfo) {
 
     .right {
       width: 36%;
+      padding-left: 32px;
+
+      .simi-mvs {
+        padding: -8px 0;
+
+        .simi-mv-card {
+          padding: 8px 0;
+        }
+      }
     }
   }
 }

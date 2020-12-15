@@ -1,3 +1,7 @@
+/**
+ * 业务工具方法
+ */
+
 export const createSong = (song) => {
   const { id, name, img, artists, duration, albumId, albumName, mvId, ...rest } = song
 

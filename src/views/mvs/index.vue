@@ -1,7 +1,6 @@
 <!-- 最新MV -->
 <template>
-<div class="mvs-root">
-  <div class="mvs-wrapper" ref="page" v-if="this.$route.path === '/mvs'">
+  <div class="mvs-wrapper" ref="page">
     <div class="tabs-wrap">
       <span class="tabs-type">地区：</span>
       <Tabs
@@ -51,8 +50,6 @@
       </ul>
     </WithPagination>
   </div>
-  <router-view v-else></router-view>
-</div>
 </template>
 
 <script type="text/ecmascript-6">

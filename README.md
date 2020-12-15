@@ -34,5 +34,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 8. npm install lodash-es
 9. npm install babel-plugin-component --save-dev
 10. npm install postcss-pxtorem --save-dev
-
+11. npm install --save-dev page-skeleton-webpack-plugin
+12. npm install --save-dev html-webpack-plugin
 - ***postcss-pxtorem***（自动处理 rem）
+- ***page-skeleton-webpack-plugin***（骨架屏方案）

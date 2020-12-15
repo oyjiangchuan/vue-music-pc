@@ -53,15 +53,7 @@ export const menuRoutes = [
     meta: {
       title: '最新MV',
       icon: 'mv'
-    },
-    children: [
-      {
-        path: '/mv/:id',
-        name: 'mv',
-        component: Mv,
-        props: (route) => ({ id: +route.params.id })
-      }
-    ]
+    }
   }
 ]
 
@@ -114,12 +106,12 @@ export default new VueRouter({
     //     }
     //   ]
     // },
-    // {
-    //   path: '/mv/:id',
-    //   name: 'mv',
-    //   component: Mv,
-    //   props: (route) =>  ({id: +route.params.id})
-    // }
+    {
+      path: '/mv/:id', // 这里的:id对应下面的route.params.id
+      name: 'mv',
+      component: Mv,
+      props: (route) => ({ id: +route.params.id })
+    },
     ...menuRoutes
   ]
 })
