@@ -34,7 +34,7 @@
             v-for="simiMv in simiMvs"
             :key="simiMv.id"
             :name="simiMv.name"
-            @click.native="goMv(simiMv.id)"
+            @click.native="$utils.goMv(simiMv.id)"
           >
             <template #img-wrap>
               <MvCard
@@ -104,12 +104,6 @@ export default {
           this.setPlayingState(false)
         })
       })
-    },
-    goMv (id) {
-      // 如果传入id 则点击直接跳转mv页面
-      if (this.$utils.isDef(id)) {
-        this.$router.push(`/mv/${id}`)
-      }
     },
     ...mapMutations(['setPlayingState'])
   },

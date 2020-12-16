@@ -1,11 +1,18 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Discovery from '../views/discovery'
-import Mvs from '../views/mvs'
-import Mv from '../views/mvs/detail'
-import Playlists from '../views/playlists'
-import PlaylistDetail from '../views/playlists/detail'
-import Songs from '../views/songs'
+// import Discovery from '../views/discovery'
+// import Mvs from '../views/mvs'
+// import Mv from '../views/mvs/detail'
+// import Playlists from '../views/playlists'
+// import PlaylistDetail from '../views/playlists/detail'
+// import Songs from '../views/songs'
+
+const Discovery = () => import('@/views/discovery')
+const Mvs = () => import('@/views/mvs')
+const Mv = () => import('@/views/mvs/detail')
+const Playlists = () => import('@/views/playlists')
+const PlaylistDetail = () => import('@/views/playlists/detail')
+const Songs = () => import('@/views/songs')
 
 // 内容需要居中的页面
 export const layoutCenterNames = ['discovery', 'playlists', 'songs', 'mvs']

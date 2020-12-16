@@ -1,4 +1,6 @@
 import { shallowEqual } from '@/utils'
+import { types } from './constant'
+
 export default {
   setCurrentSong (state, song) {
     state.currentSong = song
@@ -37,5 +39,10 @@ export default {
   },
   setMenuShow (state, show) {
     state.isMenuShow = show
+  },
+  [types.UPDATE_STATE] (state, payload) {
+    Object.keys(payload).forEach(key => {
+      state[key] = payload[key]
+    })
   }
 }

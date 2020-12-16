@@ -48,7 +48,6 @@ export default {
   },
   methods: {
     async onPageChange () {
-      console.log('aaaa', this.currentPage)
       try {
         const result = await this.getData({
           limit: this.limit,
