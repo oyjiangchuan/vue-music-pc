@@ -6,7 +6,7 @@
         :key="index"
         :active-class="`${ROUTE_ACTIVE_CLS} ${activeItemClass}`"
         :to="tab.to"
-        class="tab-itme"
+        class="tab-item"
         ref="routerLinks"
         tag="li"
       >

@@ -13,6 +13,10 @@ const Mv = () => import('@/views/mvs/detail')
 const Playlists = () => import('@/views/playlists')
 const PlaylistDetail = () => import('@/views/playlists/detail')
 const Songs = () => import('@/views/songs')
+const Search = () => import('@/views/search')
+const SearchSongs = () => import('@/views/search/songs')
+const SearchPlaylists = () => import('@/views/search/playlists')
+const SearchMvs = () => import('@/views/search/mvs')
 
 // 内容需要居中的页面
 export const layoutCenterNames = ['discovery', 'playlists', 'songs', 'mvs']
@@ -86,33 +90,33 @@ export default new VueRouter({
     //   name: 'playlist',
     //   component: PlaylistDetail
     // },
-    // {
-    //   path: '/search/:keywords',
-    //   name: 'search',
-    //   component: Search,
-    //   props: true,
-    //   children: [
-    //     {
-    //       path: '/',
-    //       redirect: 'songs'
-    //     },
-    //     {
-    //       path: 'songs',
-    //       name: 'searchSongs',
-    //       component: SearchSongs
-    //     },
-    //     {
-    //       path: 'playlists',
-    //       name: 'searchPlaylists',
-    //       component: SearchPlaylists
-    //     },
-    //     {
-    //       path: 'mvs',
-    //       name: 'searchMvs',
-    //       component: SearchMvs
-    //     }
-    //   ]
-    // },
+    {
+      path: '/search/:keywords',
+      name: 'search',
+      component: Search,
+      props: true,
+      children: [
+        {
+          path: '/',
+          redirect: 'songs'
+        },
+        {
+          path: 'songs',
+          name: 'searchSongs',
+          component: SearchSongs
+        },
+        {
+          path: 'playlists',
+          name: 'searchPlaylists',
+          component: SearchPlaylists
+        },
+        {
+          path: 'mvs',
+          name: 'searchMvs',
+          component: SearchMvs
+        }
+      ]
+    },
     {
       path: '/mv/:id', // 这里的:id对应下面的route.params.id
       name: 'mv',
