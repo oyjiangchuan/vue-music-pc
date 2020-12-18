@@ -109,3 +109,36 @@ export const notify = (message, type) => {
 export const isLast = (index, arr) => {
   return index === arr.length - 1
 }
+// 点击全屏方法
+export const requestFullScreen = (element) => {
+  const docElm = element
+  if (docElm.requestFullScreen) {
+    docElm.requestFullScreen()
+  } else if (docElm.msRequestFullscreen) {
+    docElm.msRequestFullscreen()
+  } else if (docElm.mozRequestFullScreen) {
+    docElm.mozRequestFullScreen()
+  } else if (docElm.webkitRequestFullScreen) {
+    docElm.webkitRequestFullScreen()
+  }
+}
+// 点击恢复正常大小方法
+export const exitFullscreen = () => {
+  const de = window.parent.document
+  if (de.exitFullscreen) {
+    de.exitFullscreen()
+  } else if (de.mozCancelFullScreen) {
+    de.mozCancelFullScreen()
+  } else if (de.webkitCancelFullScreen) {
+    de.webkitCancelFullScreen()
+  } else if (de.msExitFullscreen) {
+    de.msExitFullscreen()
+  }
+}
+
+// 判断是否全屏
+export const isFullscreen = () => {
+  return document.fullScreen ||
+    document.mozFullScreen ||
+    document.webkitIsFullScreen
+}

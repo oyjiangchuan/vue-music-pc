@@ -34,6 +34,7 @@
 import Theme from '@/components/theme'
 import RoutesHistory from '@/components/routes-history'
 import Search from '@/components/search'
+import { requestFullScreen, exitFullscreen, isFullscreen } from '@/utils'
 export default {
   data () {
     return {
@@ -44,11 +45,15 @@ export default {
     goHomePage () {
       this.$router.push('/discovery')
     },
+    // 退出全屏
     exitFullscreen () {
-      console.log('点击恢复正常屏幕')
+      if (isFullscreen()) {
+        exitFullscreen()
+      }
     },
+    // 打开全屏
     fullscreen () {
-      console.log('点击放大屏幕')
+      requestFullScreen(document.documentElement)
     }
   },
   components: { Theme, RoutesHistory, Search }
