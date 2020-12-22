@@ -12,7 +12,7 @@
 <script type="text/ecmascript-6">
 import { prefixStyle, toCurrentRem } from '@/utils'
 
-// const transform = prefixStyle('transform')
+const transform = prefixStyle('transform')
 
 export default {
   name: 'ProgressBar',
