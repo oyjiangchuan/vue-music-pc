@@ -122,8 +122,9 @@ export default {
       console.log('播放下一曲')
     },
     onVolumeChange (percent) {
-      // this.audio.volume = percent
-      Storage.set(VOLUME_KEY, percent)
+      // 这里percent可能为undefined 为undefined时设置0
+      // this.audio.volume = percent || 0
+      Storage.set(VOLUME_KEY, percent || 0)
     },
     // 切换播放模式
     onChangePlayMode () {

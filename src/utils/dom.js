@@ -10,8 +10,9 @@ export const hasParent = (dom, parentDom) => {
     }
   }
 }
+// 获取浏览器前缀
 
-const elementStyle = document.createElement('div')
+const elementStyle = document.createElement('div').style
 
 const vendor = (() => {
   const transformNames = {

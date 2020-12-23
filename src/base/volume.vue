@@ -2,7 +2,7 @@
   <div class="volume">
     <Icon
       :size="20"
-      :type="getIconType()"
+      :type="getIconType"
       @click="toggleSilence"
       class="icon"
     />
@@ -38,26 +38,29 @@ export default {
       this.volumePercent = percent
       this.$emit('volumeChange', percent)
     },
-    getIconType () {
-      return this.isSilence ? 'silence' : 'horn'
-    },
     toggleSilence () {
       this.isSilence = !this.isSilence
     }
   },
   computed: {
     isSilence: {
+      // 这里为什么volumePercent改变会触发isSilence的get行为？
+      // isSilence会重新计算但是为什么会触发get
       get () {
         return this.volumePercent === 0
       },
       set (newSilence) {
         const target = newSilence ? 0 : this.lastVolume
+        // 记录
         if (newSilence) {
           this.lastVolume = this.volumePercent
         }
         this.volumePercent = target
         this.onProgressChange(target)
       }
+    },
+    getIconType () {
+      return this.isSilence ? 'silence' : 'horn'
     }
   }
 }
