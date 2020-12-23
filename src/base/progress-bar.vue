@@ -68,7 +68,7 @@ export default {
       this.$refs.progress.style.width = `${offsetRem}`
       this.$refs.progressBtn.style[transform] = `translate3d(${offsetRem},0,0)`
     },
-    // 根据偏移量调整音量和图标
+    // 根据偏移量调整进度和图标
     _triggerPercent () {
       this.$emit('percentChange', this._getPercent())
     },
@@ -126,6 +126,12 @@ export default {
           display: block;
         }
       }
+    }
+  }
+
+  &:hover {
+    .progress-btn {
+      display: block !important;
     }
   }
 }

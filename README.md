@@ -36,5 +36,6 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 10. npm install postcss-pxtorem --save-dev
 11. npm install --save-dev page-skeleton-webpack-plugin
 12. npm install --save-dev html-webpack-plugin
+13. npm install clipboard --save 拷贝文本到剪切板的插件
 - ***postcss-pxtorem***（自动处理 rem）
 - ***page-skeleton-webpack-plugin***（骨架屏方案）

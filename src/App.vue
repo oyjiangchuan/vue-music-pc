@@ -2,19 +2,24 @@
   <div id="app">
     <Layout/>
     <MiniPlayer />
+    <Playlist />
+    <Player />
   </div>
 </template>
 
 <script>
 import Layout from '@/layout'
 import MiniPlayer from '@/components/mini-player'
+import Playlist from '@/components/playlist'
+import Player from '@/components/player'
+
 export default {
   metaInfo () {
     return {
       title: '欢迎来到sshPlayer'
     }
   },
-  components: { Layout, MiniPlayer }
+  components: { Layout, MiniPlayer, Playlist, Player }
 }
 
 </script>

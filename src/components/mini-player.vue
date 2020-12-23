@@ -1,9 +1,9 @@
 // 底部播放器组件
 <template>
-  <div class="mini-player">
+  <div class="mini-player" id="mini-player">
     <!-- 歌曲内容 -->
     <div class="song">
-      <template v-if="!hasCurrentSong">
+      <template v-if="hasCurrentSong">
         <div class="img-wrap" @click="togglePlayerShow">
           <div class="mask"></div>
           <img v-lazy="$utils.genImgUrl(currentSong.img, 80)" class="blur" />
@@ -13,9 +13,9 @@
         </div>
         <div class="content">
           <div class="top">
-            <p class="name">歌曲名称</p>
+            <p class="name">{{ currentSong.name }}</p>
             <p class="split">-</p>
-            <p class="artists">作者名字</p>
+            <p class="artists">{{ currentSong.artistsText }}</p>
           </div>
           <div class="time">
             <span class="played-time">{{
@@ -39,6 +39,8 @@
     </div>
     <!-- 模式/音量/歌单/分享等功能 -->
     <div class="mode">
+      <!-- 分享歌曲 -->
+      <Share :shareUrl="shareUrl" class="mode-item" v-show="hasCurrentSong" />
 
       <!-- 模式 -->
       <el-popover placement="top" trigger="hover" width="160">
@@ -77,8 +79,21 @@
       <!-- github -->
       <Icon :size="20" @click="goGitHub" class="mode-item" type="github" />
     </div>
-    <!-- 进度条 -->
-    <div class="progress-bar-wrap"></div>
+    <!-- 歌曲进度条 -->
+    <div class="progress-bar-wrap">
+      <ProgressBar
+        :disabled="!hasCurrentSong"
+        :percent="playedPercent"
+        @percentChange="onProgressChange"
+      />
+    </div>
+    <audio
+      :src="currentSong.url"
+      @canplay="ready"
+      @ended="end"
+      @timeupdate="updateTime"
+      ref="audio"
+    />
   </div>
 </template>
 
@@ -90,27 +105,59 @@ import {
   mapActions
 } from '@/store/helper/music'
 import Storage from 'good-storage'
+import Share from '@/components/share'
 import { VOLUME_KEY, playModeMap, isDef } from '@/utils'
-import icon from '../base/icon.vue'
 const DEFAULT_VOLUME = 0.75
 
 export default {
-  components: { icon },
   data () {
     return {
-      volume: Storage.get(VOLUME_KEY, DEFAULT_VOLUME)
+      volume: Storage.get(VOLUME_KEY, DEFAULT_VOLUME),
+      songReady: false,
+      isPlayErrorPromptShow: false
     }
+  },
+  mounted () {
+    this.audio.volume = this.volume
   },
   methods: {
     // 打开收起播放页面
     togglePlayerShow () {
       this.setPlayerShow(!this.isPlayerShow)
     },
+    // 准备播放
+    ready () {
+      this.songReady = true
+    },
+    // 播放歌曲
+    async play () {
+      if (this.songReady) {
+        try {
+          await this.audio.play()
+          if (this.isPlayErrorPromptShow) {
+            this.isPlayErrorPromptShow = false
+          }
+        } catch (error) {
+          // 提示用户手动播放
+          this.isPlayErrorPromptShow = true
+          this.setPlayingState(false)
+        }
+      }
+    },
+    // 关闭歌曲播放
+    pause () {
+      this.audio.pause()
+    },
+    // 歌曲播放获得时间的回调
+    updateTime (e) {
+      const time = e.target.currentTime
+      this.setCurrentTime(time)
+    },
     // 切换播放暂停
     togglePlaying () {
-      // if (!this.currentSong.id) {
-      //   return
-      // }
+      if (!this.currentSong.id) {
+        return
+      }
       this.setPlayingState(!this.playing)
     },
     // 播放上一曲
@@ -121,9 +168,14 @@ export default {
     next () {
       console.log('播放下一曲')
     },
+    // 播放结束自动播放下一曲
+    end () {
+      this.next()
+    },
+    // 点击调整进度回调
     onVolumeChange (percent) {
       // 这里percent可能为undefined 为undefined时设置0
-      // this.audio.volume = percent || 0
+      this.audio.volume = percent || 0
       Storage.set(VOLUME_KEY, percent || 0)
     },
     // 切换播放模式
@@ -145,32 +197,63 @@ export default {
     goGitHub () {
       window.open('https://github.com/Loserchuan/vue-music-pc')
     },
+    // 歌曲进度改变
+    // 这里的逻辑 点击改变百分比
+    // 改变audio的currentTime
+    // currentTime改变会触发更新setCurrentTime
+    // vuex中的currentTime一改变
+    // computed中的进度比playedPercent会重新计算形成闭环
+    onProgressChange (percent) {
+      this.audio.currentTime = this.currentSong.durationSecond * percent
+      this.setPlayingState(true)
+    },
     ...mapMutations([
-      // 'setCurrentTime',
+      'setCurrentTime',
       'setPlayingState',
       'setPlayMode',
       'setPlaylistShow',
       'setPlayerShow'
-    ])
+    ]),
+    ...mapActions(['startSong'])
   },
   computed: {
+    // 当前是否存在单曲
     hasCurrentSong () {
       return isDef(this.currentSong.id)
     },
+    // 播放图标
     playIcon () {
       return this.playing ? 'pause' : 'play'
     },
+    // 控制播放详情页面图标
     playControlIcon () {
       return this.isPlayerShow ? 'shrink' : 'open'
     },
+    // 当前播放模式
     currentMode () {
       return playModeMap[this.playMode]
     },
+    // 模式对应的图标
     modeIcon () {
       return this.currentMode.icon
     },
+    // 模式对应的文字
     playModeText () {
       return this.currentMode.name
+    },
+    // 播放器实例
+    audio () {
+      return this.$refs.audio
+    },
+    // 获取当前的歌曲分享地址
+    shareUrl () {
+      // 因为是hash模式所以需要加/#/
+      return `${window.location.origin}/#/?shareMusicId=${this.currentSong.id}`
+    },
+    // 播放的进度比
+    playedPercent () {
+      const { durationSecond } = this.currentSong
+      return Math.min(this.currentTime / durationSecond, 1) || 0
     },
     ...mapState([
       'currentSong',
@@ -180,8 +263,39 @@ export default {
       'isPlaylistShow',
       'isPlaylistPromptShow',
       'isPlayerShow'
-    ])
-  }
+    ]),
+    ...mapGetters(['prevSong', 'nextSong'])
+  },
+  watch: {
+    currentSong (newSong, oldSong) {
+      // 清空了歌曲
+      if (!newSong.id) {
+        this.audio.pause()
+        this.audio.currentTime = 0
+        return
+      }
+      // 单曲循环
+      if (oldSong && newSong.id === oldSong.id) {
+        this.setCurrentTime(0)
+        this.audio.currentTime = 0
+        this.play()
+        return
+      }
+      this.songReady = false
+      if (this.timer) {
+        clearTimeout(this.timer)
+      }
+      this.timer = setTimeout(() => {
+        this.play()
+      }, 1000)
+    },
+    playing (newPlaying) {
+      this.$nextTick(() => {
+        newPlaying ? this.play() : this.pause()
+      })
+    }
+  },
+  components: { Share }
 }
 </script>
 
@@ -318,7 +432,7 @@ export default {
     position: absolute;
     left: 0;
     right: 0;
-    top: 14px;
+    top: -14px;
   }
 }
 </style>

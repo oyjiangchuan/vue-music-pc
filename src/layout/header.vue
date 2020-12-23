@@ -13,7 +13,7 @@
         </div>
       </div>
       <!-- 缩起播放器 -->
-      <div class="shrink-player" v-if="isPlayerShow">
+      <div class="shrink-player" v-if="isPlayerShow" @click="onClickDown">
         <Icon :backdrop="true" type="down"/>
       </div>
       <!-- 路由记录器 -->
@@ -35,12 +35,8 @@ import Theme from '@/components/theme'
 import RoutesHistory from '@/components/routes-history'
 import Search from '@/components/search'
 import { requestFullScreen, exitFullscreen, isFullscreen } from '@/utils'
+import { mapState, mapMutations } from '@/store/helper/music'
 export default {
-  data () {
-    return {
-      isPlayerShow: false
-    }
-  },
   methods: {
     goHomePage () {
       this.$router.push('/discovery')
@@ -54,7 +50,15 @@ export default {
     // 打开全屏
     fullscreen () {
       requestFullScreen(document.documentElement)
-    }
+    },
+    // 收起播放器
+    onClickDown () {
+      this.setPlayerShow(false)
+    },
+    ...mapMutations(['setPlayerShow'])
+  },
+  computed: {
+    ...mapState(['isPlayerShow'])
   },
   components: { Theme, RoutesHistory, Search }
 }
