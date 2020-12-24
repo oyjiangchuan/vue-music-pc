@@ -34,7 +34,53 @@
             />
           </div>
           <div class="right">
-            <p class="title">右侧歌单列表</p>
+           <Loading v-if="simiLoading" :loading="simiLoading"/>
+           <div v-else>
+             <div class="simi-playlists" v-if="simiPlaylists.length">
+               <p class="title">包含这首哥的歌单</p>
+               <div
+                  class="simi-item"
+                  v-for="simiPlaylist in simiPlaylists"
+                  :key="simiPlaylist.id"
+                >
+                  <Card
+                    :img="simiPlaylist.coverImgUrl"
+                    :name="simiPlaylist.name"
+                    @click="onClickPlaylist(simiPlaylist.id)"
+                  >
+                    <template v-slot:desc>
+                      <div class="desc">
+                        <Icon
+                          :size="12"
+                          color="shallow"
+                          type="play"
+                        />
+                        <p class="count">{{ $utils.formatNumber(simiPlaylist.playCount) }}</p>
+                      </div>
+                    </template>
+                  </Card>
+                </div>
+             </div>
+             <div class="simi-songs" v-if="simiSongs.length">
+               <p class="title">相似歌曲</p>
+               <div
+                  class="simi-item"
+                  v-for="simiSong in simiSongs"
+                  :key="simiSong.id"
+                >
+                  <Card
+                    :desc="simiSong.artistsText"
+                    :img="simiSong.img"
+                    :name="simiSong.name"
+                    @click="onClickSong(simiSong)"
+                  >
+                    <template v-slot:img-mask>
+                      <PlayIcon class="play-icon" />
+                    </template>
+                  </Card>
+                </div>
+             </div>
+           </div>
           </div>
         </div>
       </div>
@@ -43,11 +89,54 @@
 </template>
 
 <script type="text/ecmascript-6">
+import { getLyric, getSimiSongs, getSimiPlaylists } from '@/api'
+import { debounce, isDef, createSong, goMvWithCheck } from '@/utils'
 import { mapState, mapMutations, mapActions, mapGetters } from '@/store/helper/music'
 import Comments from '@/components/comments'
 
 export default {
+  data () {
+    return {
+      simiLoading: false,
+      simiPlaylists: [], // 相似歌单列表
+      simiSongs: [] // 相似歌曲列表
+    }
+  },
   methods: {
+    // 更新歌曲
+    async updateSong () {
+      this.updateSimi()
+    },
+    // 更新相似歌单/歌曲列表
+    async updateSimi () {
+      this.simiLoading = true
+      const [simiPlaylists, simiSongs] = await Promise.all([
+        getSimiPlaylists(this.currentSong.id),
+        getSimiSongs(this.currentSong.id)
+      ]).finally(() => {
+        this.simiLoading = false
+      })
+      this.simiPlaylists = simiPlaylists.playlists
+      this.simiSongs = simiSongs.songs.map((song) => {
+        const {
+          id,
+          name,
+          artists,
+          mvid,
+          album: { picUrl },
+          duration
+        } = song
+        return createSong({
+          id,
+          name,
+          artists,
+          duration,
+          img: picUrl,
+          mvId: mvid
+        })
+      })
+    },
+    // 切换player组件显示隐藏
     getPlayerShowCls () {
       return this.isPlayerShow ? 'show' : 'hide'
     },
@@ -55,11 +144,55 @@ export default {
     changePlaying () {
       this.setPlayingState(!this.playing)
     },
-    ...mapMutations(['setPlayingState'])
+    // 点击歌单操作
+    onClickPlaylist (id) {
+      // 点击的歌单和当前打开的单页是同一个 直接关闭player
+      if (id === Number(this.$route.params.id)) {
+        this.setPlayerShow(false)
+      } else {
+        this.$router.push(`/playlist/${id}`)
+      }
+    },
+    // 点击相似歌曲操作
+    onClickSong (song) {
+
+    },
+    ...mapMutations(['setPlayingState', 'setPlayerShow'])
   },
   computed: {
     ...mapState(['currentSong', 'currentTime', 'playing', 'isPlayerShow']),
     ...mapGetters(['hasCurrentSong'])
+  },
+  watch: {
+    // 是否展示player组件 这里会请求相似歌曲/歌单请求
+    isPlayerShow (show) {
+      if (show) {
+        // 歌词短期内不会变化 所以只拉取相似信息
+        this.updateSimi()
+        // this.addResizeListener()
+        // this.$nextTick(() => {
+        //   this.scrollToActiveLyric()
+        // })
+      } else {
+        // this.removeResizeListener()
+      }
+    },
+    currentSong (newSong, oldSong) {
+      if (!newSong.id) {
+        this.setPlayerShow(false)
+        return
+      }
+      if (newSong.id === oldSong.id) {
+        return
+      }
+      // 如果歌曲详情显示状态切歌 需要拉取歌曲相关信息
+      if (this.isPlayerShow) {
+        this.updateSong()
+      } else {
+        // 否则只是更新歌词
+        // this.updateLyric()
+      }
+    }
   },
   components: { Comments }
 }
@@ -188,6 +321,20 @@ $img-outer-d: 300px;
         padding-left: 36px;
         width: 28%;
         overflow: hidden;
+
+        .simi-playlists {
+          margin-bottom: 36px;
+        }
+
+        .simi-item {
+          margin-bottom: 6px;
+        }
+
+        .simi-songs {
+          .play-icon {
+            @include abs-center;
+          }
+        }
 
         .title {
           font-size: $font-size-lg;

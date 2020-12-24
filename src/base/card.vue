@@ -1,10 +1,11 @@
 <template>
   <div class="horizontal-card">
+    <!-- <slot name="img-wrap"> 插槽内部写HTML 这个插槽如果外部使用了就是外部的内容，否则就是插槽里面的内容 -->
     <slot name="img-wrap">
-      <!-- <div class="img-wrap">
+      <div class="img-wrap">
         <img v-lazy="$utils.genImgUrl(img, 50)" />
         <slot name="img-mask"></slot>
-      </div> -->
+      </div>
     </slot>
     <div class="content">
       <div class="name">{{ name }}</div>
