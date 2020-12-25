@@ -22,7 +22,46 @@
             </div>
           </div>
           <!-- 右侧歌词 -->
-          <div class="right"></div>
+          <div class="right">
+            <div class="name-wrap">
+              <p class="name">{{currentSong.name}}</p>
+              <span
+                class="mv-tag"
+                v-if="currentSong.mvId"
+              >MV</span>
+            </div>
+            <div class="desc">
+              <div class="desc-item">
+                <span class="label">歌手：</span>
+                <div class="value">{{currentSong.artistsText}}</div>
+              </div>
+            </div>
+            <empty v-if="nolyric">还没有歌词哦~</empty>
+            <Scroller
+              v-else
+              :data="lyric"
+              :options="{disableTouch: true}"
+              @init="onInitScroller"
+              class="lyric-wrap"
+              ref="scroller"
+            >
+              <div>
+                <div
+                  :class="getActiveCls(index)"
+                  class="lyric-item"
+                  ref="lyric"
+                  v-for="(l,index) in lyricWithTranslation"
+                  :key="index"
+                >
+                  <p
+                    class="lyric-text"
+                    v-for="(content, contentIndex) in l.contents"
+                    :key="contentIndex"
+                  >{{content}}</p>
+                </div>
+              </div>
+            </Scroller>
+          </div>
         </div>
         <!-- 评论/歌单 -->
         <div class="bottom">
@@ -33,7 +72,7 @@
               ref="comments"
             />
           </div>
-          <div class="right">
+          <div class="right" v-if="simiPlaylists.concat(simiSongs).length">
            <Loading v-if="simiLoading" :loading="simiLoading"/>
            <div v-else>
              <div class="simi-playlists" v-if="simiPlaylists.length">
@@ -89,23 +128,52 @@
 </template>
 
 <script type="text/ecmascript-6">
+import lyricParser from '@/utils/lrcparse'
 import { getLyric, getSimiSongs, getSimiPlaylists } from '@/api'
 import { debounce, isDef, createSong, goMvWithCheck } from '@/utils'
 import { mapState, mapMutations, mapActions, mapGetters } from '@/store/helper/music'
 import Comments from '@/components/comments'
+const WHEEL_TYPE = 'wheel'
+const SCROLL_TYPE = 'scroll'
+// 恢复自动滚动的定时器时间
+const AUTO_SCROLL_RECOVER_TIME = 1000
 
 export default {
+  created () {
+    this.lyricScrolling = {
+      [WHEEL_TYPE]: false,
+      [SCROLL_TYPE]: false
+    }
+    this.lyricTimer = {
+      [WHEEL_TYPE]: null,
+      [SCROLL_TYPE]: null
+    }
+  },
   data () {
     return {
       simiLoading: false,
       simiPlaylists: [], // 相似歌单列表
-      simiSongs: [] // 相似歌曲列表
+      simiSongs: [], // 相似歌曲列表
+      nolyric: false, // 是否存在歌词
+      lyric: [], // 歌词
+      tlyric: [] // 可能是其他语言的歌词
     }
   },
   methods: {
-    // 更新歌曲
+    // 更新歌曲信息
     async updateSong () {
+      this.updateLyric()
       this.updateSimi()
+    },
+    // 更新歌词
+    async updateLyric () {
+      const result = await getLyric(this.currentSong.id)
+      this.nolyric = !isDef(result.lrc) || !result.lrc.lyric
+      if (!this.nolyric) { // 歌词存在
+        const { lyric, tlyric } = lyricParser(result)
+        this.lyric = lyric
+        this.tlyric = tlyric
+      }
     },
     // 更新相似歌单/歌曲列表
     async updateSimi () {
@@ -157,14 +225,94 @@ export default {
     onClickSong (song) {
 
     },
+    // better-scroll init 的回调
+    onInitScroller (scroller) {
+      const onScrollStart = type => {
+        this.clearTimer(type)
+        this.lyricScrolling[type] = true
+      }
+      const onScrollEnd = type => {
+        // 滚动结束后两秒 歌词开始自动滚动
+        this.clearTimer(type)
+        this.lyricTimer[type] = setTimeout(() => {
+          this.lyricScrolling[type] = false
+        }, AUTO_SCROLL_RECOVER_TIME)
+      }
+
+      scroller.on('scrollStart', onScrollStart.bind(null, SCROLL_TYPE))
+      scroller.on('mousewheelStart', onScrollStart.bind(null, WHEEL_TYPE))
+
+      scroller.on('scrollEnd', onScrollEnd.bind(null, SCROLL_TYPE))
+      scroller.on('mousewheelEnd', onScrollEnd.bind(null, WHEEL_TYPE))
+    },
+    // 清除定时器
+    clearTimer (type) {
+      this.lyricTimer[type] && clearTimeout(this.lyricTimer[type])
+    },
+    // 根据时间判断当前的歌词
+    getActiveCls (index) {
+      return this.activeLyricIndex === index ? 'active' : ''
+    },
+    // 动态滚动歌词
+    scrollToActiveLyric () {
+      if (this.activeLyricIndex !== -1) {
+        const { scroller, lyric } = this.$refs
+        if (lyric && lyric[this.activeLyricIndex]) {
+          scroller.getScroller().scrollToElement(lyric[this.activeLyricIndex], 200, 0, true)
+        }
+      }
+    },
     ...mapMutations(['setPlayingState', 'setPlayerShow'])
   },
   computed: {
+    // 根据currentTime判断当前的歌词行数 根据当前的时间 是否--大于当前time--小于下一行的time
+    activeLyricIndex () {
+      return this.lyricWithTranslation
+        ? this.lyricWithTranslation.findIndex((l, index) => {
+          const nextLyric = this.lyricWithTranslation[index + 1]
+          return (
+            this.currentTime >= l.time &&
+            (nextLyric ? this.currentTime < nextLyric.time : true)
+          )
+        })
+        : -1
+    },
+    // 组装歌词/lyric和tlyric组装 但是一般tlyric为空
+    lyricWithTranslation () {
+      let ret = []
+      // 歌词空内容的去除
+      const lyricFiltered = this.lyric.filter(({ content }) => Boolean(content))
+      // content统一转换数组形式
+      if (lyricFiltered.length) {
+        lyricFiltered.forEach(l => {
+          const { time, content } = l
+          const lyricItem = { time, content, contents: [content] }
+          // 根据time组装contents/这里可能会有两种歌词/比如中英文的/所以组装
+          const sameTimeTLyric = this.tlyric.find(
+            ({ time: tLyricTime }) => tLyricTime === time
+          )
+          if (sameTimeTLyric) {
+            const { content: tLyricContent } = sameTimeTLyric
+            if (content) {
+              lyricItem.contents.push(tLyricContent)
+            }
+          }
+          ret.push(lyricItem)
+        })
+      } else {
+        ret = lyricFiltered.map(({ time, content }) => ({
+          time,
+          content,
+          contents: [content]
+        }))
+      }
+      return ret
+    },
     ...mapState(['currentSong', 'currentTime', 'playing', 'isPlayerShow']),
     ...mapGetters(['hasCurrentSong'])
   },
   watch: {
-    // 是否展示player组件 这里会请求相似歌曲/歌单请求
+    // 监听isPlayerShow 请求相似歌曲/歌单请求
     isPlayerShow (show) {
       if (show) {
         // 歌词短期内不会变化 所以只拉取相似信息
@@ -177,6 +325,7 @@ export default {
         // this.removeResizeListener()
       }
     },
+    // 监听currentSong 展示player组件 更新歌曲信息
     currentSong (newSong, oldSong) {
       if (!newSong.id) {
         this.setPlayerShow(false)
@@ -190,7 +339,17 @@ export default {
         this.updateSong()
       } else {
         // 否则只是更新歌词
-        // this.updateLyric()
+        this.updateLyric()
+      }
+    },
+    // 监听activeLyricIndex改变 动态滚动歌词
+    activeLyricIndex (newIndex, oldIndex) {
+      if (
+        newIndex !== oldIndex &&
+        !this.lyricScrolling[WHEEL_TYPE] &&
+        !this.lyricScrolling[SCROLL_TYPE]
+      ) {
+        this.scrollToActiveLyric()
       }
     }
   },
@@ -302,6 +461,82 @@ $img-outer-d: 300px;
               img {
                 border-radius: 50%;
               }
+            }
+          }
+        }
+      }
+
+      .right {
+        flex: 1;
+        padding-top: 45px;
+
+        .name-wrap {
+          display: flex;
+          align-items: center;
+          margin-bottom: 16px;
+
+          .name {
+            font-size: $font-size-title-lg;
+            color: var(--font-color-white);
+          }
+
+          .mv-tag {
+            display: inline-block;
+            margin-left: 8px;
+            padding: 2px;
+            border: 1px solid currentColor;  // currentColor代表？
+            border-radius: 2px;
+            color: $theme-color;
+            cursor: pointer;
+          }
+        }
+
+        .desc {
+          display: flex;
+          font-size: $font-size-sm;
+          margin-bottom: 30px;
+
+          .desc-item {
+            display: flex;
+            margin-right: 32px;
+
+            .label {
+              display: inline-block;
+              margin-right: 4px;
+            }
+
+            .value {
+              color: $blue;
+            }
+          }
+        }
+
+        .lyric-wrap {
+          width: 380px;
+          height: 350px;
+          // 蒙尘效果
+          mask-image: linear-gradient(
+            180deg,
+            hsla(0, 0%, 100%, 0) 0,
+            hsla(0, 0%, 100%, 0.6) 15%,
+            #fff 25%,
+            #fff 75%,
+            hsla(0, 0%, 100%, 0.6) 85%,
+            hsla(0, 0%, 100%, 0)
+          );
+
+          .lyric-item {
+            margin-bottom: 16px;
+            font-size: $font-size-sm;
+
+            &.active {
+              font-size: $font-size;
+              color: var(--font-color-white);
+              font-weight: $font-weight-bold;
+            }
+
+            .lyric-text {
+              margin-bottom: 8px;
             }
           }
         }

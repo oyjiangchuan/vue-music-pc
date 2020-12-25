@@ -9,3 +9,6 @@ export const getTopSongs = (type) => request.get(API + `/top/song?type=${type}`)
 // 相似音乐
 export const getSimiSongs = (id, option) =>
   requestWithoutLoading.get(API + `/simi/song?id=${id}`, option)
+
+// 获取歌词
+export const getLyric = (id) => request.get(API + `/lyric?id=${id}`)

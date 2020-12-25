@@ -22,7 +22,7 @@ export default {
   },
   methods: {
     initShareIcon () {
-      /* eslint-disable no-new */
+      /* eslint-disable */
       // 注释来绕开语法检查对注释下的语句的检查, 只对注释下的一行代码有效
       new Clipboard(this.$refs.shareIcon.$el)
     },
