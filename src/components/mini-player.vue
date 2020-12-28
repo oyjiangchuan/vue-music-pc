@@ -93,7 +93,7 @@
       @ended="end"
       @timeupdate="updateTime"
       ref="audio"
-    />
+    ></audio>
   </div>
 </template>
 
@@ -162,11 +162,15 @@ export default {
     },
     // 播放上一曲
     prev () {
-      console.log('播放上一曲')
+      if (this.songReady) {
+        this.startSong(this.prevSong)
+      }
     },
     // 播放下一曲
     next () {
-      console.log('播放下一曲')
+      if (this.songReady) {
+        this.startSong(this.nextSong)
+      }
     },
     // 播放结束自动播放下一曲
     end () {

@@ -23,6 +23,7 @@
 import SongCard from '@/components/song-card'
 import { getNewSongs } from '@/api'
 import { createSong } from '@/utils'
+import { mapActions, mapMutations } from '@/store/helper/music'
 
 const songsLimit = 10
 
@@ -73,10 +74,11 @@ export default {
       // 这里因为getSongOrder是从1开始显示, 所以当做数组下标需要减一
       const nomalizedSongIndex = this.getSongOrder(listIndex, index) - 1
       const nomalizedSong = this.normalizedSongs[nomalizedSongIndex]
-      console.log('nomalizedSong', nomalizedSong) // 选中的歌曲
-      // this.startSong(nomalizedSong)
-      // this.setPlaylist(this.normalizedSongs)
-    }
+      this.startSong(nomalizedSong)
+      this.setPlaylist(this.normalizedSongs)
+    },
+    ...mapMutations(['setPlaylist']),
+    ...mapActions(['startSong'])
   },
   components: { SongCard }
 }

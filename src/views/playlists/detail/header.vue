@@ -33,16 +33,26 @@
 </template>
 
 <script type="text/ecmascript-6">
+import { mapActions, mapMutations } from '@/store/helper/music'
 
 export default {
   props: {
     playlist: {
       type: Object,
       default: () => []
+    },
+    songs: {
+      type: Array,
+      default: () => []
     }
   },
   methods: {
-    playAll () {}
+    playAll () {
+      this.startSong(this.songs[0])
+      this.setPlaylist(this.songs)
+    },
+    ...mapMutations(['setPlaylist']),
+    ...mapActions(['startSong'])
   },
   computed: {
     tagsText () {

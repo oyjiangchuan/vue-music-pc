@@ -26,6 +26,7 @@
             <div class="name-wrap">
               <p class="name">{{currentSong.name}}</p>
               <span
+                @click="onGoMv"
                 class="mv-tag"
                 v-if="currentSong.mvId"
               >MV</span>
@@ -223,7 +224,13 @@ export default {
     },
     // 点击相似歌曲操作
     onClickSong (song) {
-
+      this.startSong(song)
+      this.addToPlaylist(song)
+    },
+    // 前往mv页面
+    onGoMv () {
+      this.setPlayerShow(false)
+      goMvWithCheck(this.currentSong.mvId)
     },
     // better-scroll init 的回调
     onInitScroller (scroller) {
@@ -262,7 +269,22 @@ export default {
         }
       }
     },
-    ...mapMutations(['setPlayingState', 'setPlayerShow'])
+    // 添加监听resize事件：浏览器窗口被调整到一个新的高度或宽度时，就会触发resize事件
+    addResizeListener () {
+      window.addEventListener('resize', this.resizeScroller)
+    },
+    // 移除监听resize事件
+    removeResizeListener () {
+      window.removeEventListener('resize', this.resizeScroller)
+    },
+    // 刷新歌词
+    resizeScroller () {
+      debounce(() => {
+        this.$refs.scroller.getScroller().refresh()
+      }, 500)
+    },
+    ...mapMutations(['setPlayingState', 'setPlayerShow']),
+    ...mapActions(['startSong', 'addToPlaylist'])
   },
   computed: {
     // 根据currentTime判断当前的歌词行数 根据当前的时间 是否--大于当前time--小于下一行的time
@@ -317,12 +339,12 @@ export default {
       if (show) {
         // 歌词短期内不会变化 所以只拉取相似信息
         this.updateSimi()
-        // this.addResizeListener()
-        // this.$nextTick(() => {
-        //   this.scrollToActiveLyric()
-        // })
+        this.addResizeListener()
+        this.$nextTick(() => {
+          this.scrollToActiveLyric()
+        })
       } else {
-        // this.removeResizeListener()
+        this.removeResizeListener()
       }
     },
     // 监听currentSong 展示player组件 更新歌曲信息
@@ -351,6 +373,9 @@ export default {
       ) {
         this.scrollToActiveLyric()
       }
+    },
+    $route () {
+      this.setPlayerShow(false)
     }
   },
   components: { Comments }

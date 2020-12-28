@@ -1,7 +1,7 @@
 <!-- 歌单详情 -->
 <template>
   <div class="playlist-detail" v-if="playlist.id">
-    <DetailHeader :playlist="playlist" ref="header"></DetailHeader>
+    <DetailHeader :playlist="playlist" :songs="songs" ref="header"></DetailHeader>
     <div class="tabs-wrap">
       <Tabs :tabs="tabs" type="theme" v-model="activeTab" />
       <el-input

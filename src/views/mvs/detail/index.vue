@@ -116,6 +116,7 @@ export default {
 function genResource (brs, mvPlayInfo) {
   const { url: mvPlayInfoUrl, r: mvPlayInfoBr } = mvPlayInfo
 
+  /* eslint-disable */
   const keyNameMap = {
     '240': '标清',
     '480': '高清',
