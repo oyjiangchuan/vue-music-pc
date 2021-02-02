@@ -18,7 +18,7 @@
         </p>
       </div>
       <div class="bottom">
-        <span class="date">2020-09-10 19:50:26</span>
+        <span class="date">{{ $utils.formatDate(comment.time) }}</span>
         <div class="actions">
           <Icon :size="12" type="good" />
           {{ comment.likedCount }}
